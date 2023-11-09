@@ -41,3 +41,12 @@ func TestExistsDirOrFile(t *testing.T) {
 func TestCheckFileContainsStr(t *testing.T) {
 	fmt.Println(CheckFileContainsStr("/tmp/fstab", "/dev/mapper/xxxss"))
 }
+
+func TestRemoveFile(t *testing.T) {
+	fmt.Println(RemoveFile("/Users/lifengming/home/tmp/logs/0000.log"))
+}
+
+func TestRemoveFilesInDir(t *testing.T) {
+	fmt.Println(RemoveFilesInDir("/Users/lifengming/home/tmp/logs/dd"))
+
+}

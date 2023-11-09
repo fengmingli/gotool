@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -126,4 +128,54 @@ func IsDir(path string) bool {
 // IsFile 判断所给路径是否为文件
 func IsFile(path string) bool {
 	return !IsDir(path)
+}
+
+// RemoveFile 删除指定的文件
+func RemoveFile(filePath string) error {
+	info, err := os.Stat(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to get file info: %w", err)
+	}
+
+	if info != nil && !info.Mode().IsRegular() {
+		return fmt.Errorf("%s is not a regular file", filePath)
+	}
+
+	if err = os.Remove(filePath); err != nil {
+		return fmt.Errorf("failed to remove file: %w", err)
+	}
+	return nil
+}
+
+// RemoveFilesInDir 删除指定目录及其所有内容
+func RemoveFilesInDir(dirPath string) error {
+	info, err := os.Stat(dirPath)
+	if err != nil {
+		return fmt.Errorf("failed to get directory info: %w", err)
+	}
+
+	if info != nil && !info.IsDir() {
+		return fmt.Errorf("%s is not a directory", dirPath)
+	}
+
+	files, err := ioutil.ReadDir(dirPath)
+	if err != nil {
+		return fmt.Errorf("failed to list files in directory: %w", err)
+	}
+
+	for _, file := range files {
+		filePath := filepath.Join(dirPath, file.Name())
+		if file.IsDir() {
+			err := RemoveFilesInDir(filePath)
+			if err != nil {
+				return fmt.Errorf("failed to remove directory %s: %w", filePath, err)
+			}
+		} else {
+			err := os.Remove(filePath)
+			if err != nil {
+				return fmt.Errorf("failed to remove file %s: %w", filePath, err)
+			}
+		}
+	}
+	return nil
 }
