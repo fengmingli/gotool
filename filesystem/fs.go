@@ -179,3 +179,47 @@ func RemoveFilesInDir(dirPath string) error {
 	}
 	return nil
 }
+
+// DeleteFolder 用于删除指定的文件夹及其内容
+func DeleteFolder(folderPath string, needDeleteCurrentFolder bool) error {
+	err := filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil && info != nil {
+			return err
+		}
+		// 跳过最外层的文件夹
+		if !needDeleteCurrentFolder && path == folderPath {
+			return nil
+		}
+
+		// 检查路径是否是直接子文件或子文件夹
+		relativePath, err := filepath.Rel(folderPath, path)
+		if err != nil {
+			fmt.Println("Error getting relative path:", path, ":", err)
+			return err
+		}
+		components := strings.Split(relativePath, string(filepath.Separator))
+		if len(components) == 1 {
+			// 如果是文件夹，使用os.RemoveAll删除文件夹及其内容
+			if info.IsDir() {
+				err = os.RemoveAll(path)
+				if err != nil {
+					return err
+				}
+			} else {
+				// 如果是文件，直接删除
+				err = os.Remove(path)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+
+	// 检查删除过程中是否有错误发生
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

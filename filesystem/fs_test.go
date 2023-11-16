@@ -50,3 +50,8 @@ func TestRemoveFilesInDir(t *testing.T) {
 	fmt.Println(RemoveFilesInDir("/Users/lifengming/home/tmp/logs/dd"))
 
 }
+
+func TestDeleteFolder(t *testing.T) {
+	fmt.Println(DeleteFolder("/Users/lifengming/home/tmp/", false))
+
+}
